@@ -38,6 +38,46 @@
     font-size:12px;
     opacity:0.72;
   }
+
+  .tools{ flex:1; display:flex; justify-content:flex-end; }
+  .search{
+    width:min(520px, 48vw);
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.10);
+    background:rgba(255,255,255,0.06);
+    color:#fff;
+    font-size:13px;
+    font-weight:650;
+    outline:none;
+  }
+  .search::placeholder{ color:rgba(255,255,255,0.55); font-weight:600; }
+  .search:focus{ border-color:rgba(255,255,255,0.22); background:rgba(255,255,255,0.08); }
+
+  .filterBar{
+    padding:0 40px 14px 40px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .chip{
+    user-select:none;
+    cursor:pointer;
+    padding:8px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,0.10);
+    background:rgba(255,255,255,0.04);
+    font-size:12px;
+    font-weight:750;
+    opacity:0.9;
+  }
+  .chip:hover{ background:rgba(255,255,255,0.08); }
+  .chip.isActive{
+    background:#fff;
+    color:#000;
+    border-color:transparent;
+  }
+
   .guideToggle{
     display:flex;
     align-items:center;
@@ -207,11 +247,17 @@
       <div class="brand__title">Firefly Prompt Library</div>
       <div class="brand__subtitle">One-click: copy prompt → open preset → replace reference → generate</div>
     </div>
+
+    <div class="tools">
+      <input class="search" id="searchInput" type="search" placeholder="Search title / tag / prompt…" autocomplete="off" />
+    </div>
     <button class="guideToggle" id="guideToggle" aria-expanded="true" aria-controls="guidePanel">
       사용 가이드
       <span class="chev" aria-hidden="true">▾</span>
     </button>
   </div>
+
+  <div class="filterBar" id="filterBar" aria-label="Filters"></div>
 
   <div class="guide" id="guidePanel">
     <div class="guide__callout">
@@ -270,13 +316,18 @@ const data = [
 
 const grid = document.getElementById("grid");
 const toast = document.getElementById("toast");
+const searchInput = document.getElementById("searchInput");
+const filterBar = document.getElementById("filterBar");
 
 function showToast(){
   toast.classList.add("show");
   setTimeout(()=>toast.classList.remove("show"),1000);
 }
 
-data.forEach(item=>{
+let activeTag = "All";
+let query = "";
+
+function cardTemplate(item){
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `
@@ -289,9 +340,61 @@ data.forEach(item=>{
     navigator.clipboard.writeText(item.prompt);
     showToast();
     setTimeout(()=>window.open(item.link, "_blank"),400);
-  }
-  grid.appendChild(card);
+  };
+  // right click = copy only
+  card.oncontextmenu = (e)=>{
+    e.preventDefault();
+    navigator.clipboard.writeText(item.prompt);
+    showToast();
+  };
+  return card;
+}
+
+function matches(item){
+  const hay = (item.title + " " + item.tags.join(" ") + " " + item.prompt).toLowerCase();
+  const qOk = !query || hay.includes(query);
+  const tagOk = activeTag === "All" || item.tags.includes(activeTag);
+  return qOk && tagOk;
+}
+
+function render(){
+  grid.innerHTML = "";
+  const list = data.filter(matches);
+  list.forEach(item => grid.appendChild(cardTemplate(item)));
+}
+
+function setActiveChip(tag){
+  activeTag = tag;
+  [...filterBar.querySelectorAll(".chip")].forEach(btn=>{
+    btn.classList.toggle("isActive", btn.dataset.tag === tag);
+  });
+  render();
+}
+
+function buildChips(){
+  const tags = Array.from(new Set(data.flatMap(d=>d.tags))).sort((a,b)=>a.localeCompare(b));
+  const all = ["All", ...tags];
+  filterBar.innerHTML = "";
+  all.forEach(tag=>{
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "chip";
+    btn.dataset.tag = tag;
+    btn.textContent = tag;
+    btn.onclick = ()=>setActiveChip(tag);
+    filterBar.appendChild(btn);
+  });
+  setActiveChip("All");
+}
+
+searchInput.addEventListener("input", (e)=>{
+  query = e.target.value.trim().toLowerCase();
+  render();
 });
+
+// initial
+buildChips();
+render();
 </script>
 
 </body>
