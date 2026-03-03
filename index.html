@@ -12,24 +12,113 @@
     color: white;
   }
 
-  .notice {
-    padding: 28px 40px;
-    font-size: 18px;
-    font-weight: 600;
-    background: linear-gradient(90deg,#111,#1a1a1a);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+  /* Top guide (pro) */
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:linear-gradient(180deg, rgba(10,10,10,0.92), rgba(10,10,10,0.72));
+    backdrop-filter: blur(12px);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .topbar__inner{
+    display:flex;
+    gap:16px;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 40px;
+  }
+  .brand__title{
+    font-size:16px;
+    font-weight:900;
+    letter-spacing:0.2px;
+  }
+  .brand__subtitle{
+    margin-top:4px;
+    font-size:12px;
+    opacity:0.72;
+  }
+  .guideToggle{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.10);
+    background:rgba(255,255,255,0.06);
+    color:#fff;
+    font-size:13px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .guideToggle:hover{ background:rgba(255,255,255,0.10); }
+  .chev{ display:inline-block; transition:transform 180ms ease; opacity:0.9; }
+  .guideToggle[aria-expanded="false"] .chev{ transform:rotate(-90deg); }
+
+  .guide{
+    padding:0 40px 18px 40px;
+  }
+  .guide.isHidden{ display:none; }
+  .guide__callout{
+    padding:14px 16px;
+    border-radius:14px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.10);
+    font-size:14px;
+    line-height:1.4;
+  }
+  .guide__callout strong{ font-weight:900; font-size:15px; }
+
+  .steps{
+    margin:14px 0 10px 0;
+    padding:0;
+    list-style:none;
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap:10px;
+  }
+  .steps li{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    padding:12px 12px;
+    border-radius:14px;
+    background:rgba(0,0,0,0.35);
+    border:1px solid rgba(255,255,255,0.06);
+  }
+  .stepNum{
+    width:22px;
+    height:22px;
+    border-radius:999px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    font-weight:900;
+    background:rgba(255,255,255,0.14);
+  }
+  .stepText{ font-size:13px; line-height:1.35; opacity:0.92; }
+
+  .guide__tips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .tip{
+    font-size:12px;
+    opacity:0.75;
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
   }
 
-  .notice strong {
-    font-weight: 800;
-    font-size: 20px;
-  }
-
+  /* Cards */
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 20px;
-    padding: 40px;
+    padding: 28px 40px 40px 40px;
   }
 
   .card {
@@ -50,7 +139,7 @@
 
   .title {
     font-size: 20px;
-    font-weight: 700;
+    font-weight: 900;
     margin-bottom: 10px;
     letter-spacing: 0.5px;
   }
@@ -67,7 +156,7 @@
     padding: 4px 8px;
     border-radius: 999px;
     background: rgba(255,255,255,0.08);
-    opacity: 0.8;
+    opacity: 0.85;
   }
 
   .prompt {
@@ -80,7 +169,7 @@
 
   .card:hover .prompt {
     opacity: 1;
-    max-height: 200px;
+    max-height: 220px;
     margin-top: 10px;
   }
 
@@ -92,10 +181,8 @@
     color: black;
     text-align: center;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 800;
   }
-
-  .chrome { background: linear-gradient(90deg,#aaa,#fff,#888); -webkit-background-clip:text; color:transparent; }
 
   .toast {
     position: fixed;
@@ -114,14 +201,54 @@
 </head>
 <body>
 
-<div class="notice">
-⚠️ Firefly 사용 전 <strong>참조이미지</strong>는 반드시 1500×1500px 정사각형으로 제작 후 교체하세요.
-</div>
+<header class="topbar" role="banner">
+  <div class="topbar__inner">
+    <div class="brand">
+      <div class="brand__title">Firefly Prompt Library</div>
+      <div class="brand__subtitle">One-click: copy prompt → open preset → replace reference → generate</div>
+    </div>
+    <button class="guideToggle" id="guideToggle" aria-expanded="true" aria-controls="guidePanel">
+      사용 가이드
+      <span class="chev" aria-hidden="true">▾</span>
+    </button>
+  </div>
+
+  <div class="guide" id="guidePanel">
+    <div class="guide__callout">
+      ⚠️ 필수: Firefly 진입 후 좌측 <strong>컴포지션 → 참조 이미지</strong>를 <strong>1500×1500px 정사각형 한글 PNG</strong>로 반드시 교체하세요.
+    </div>
+
+    <ol class="steps">
+      <li><span class="stepNum">1</span><span class="stepText">카드 클릭 (프롬프트 자동 복사)</span></li>
+      <li><span class="stepNum">2</span><span class="stepText">Firefly 프리셋 링크 자동 열림</span></li>
+      <li><span class="stepNum">3</span><span class="stepText">좌측 <strong>컴포지션 → 참조</strong>에서 기존 이미지를 제거</span></li>
+      <li><span class="stepNum">4</span><span class="stepText"><strong>1500×1500px 한글 PNG</strong> 업로드 후 Generate</span></li>
+    </ol>
+
+    <div class="guide__tips">
+      <div class="tip">Tip: 우클릭(또는 길게 누르기) = 링크 이동 없이 “복사만”</div>
+      <div class="tip">Tip: 결과가 이상하면 참조 이미지 교체가 안 된 경우가 대부분</div>
+    </div>
+  </div>
+</header>
 
 <div class="grid" id="grid"></div>
 <div class="toast" id="toast">Copied</div>
 
 <script>
+// Guide toggle
+const _toggleGuide = () => {
+  const btn = document.getElementById('guideToggle');
+  const panel = document.getElementById('guidePanel');
+  const expanded = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', String(!expanded));
+  panel.classList.toggle('isHidden', expanded);
+};
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('guideToggle');
+  if (btn) btn.addEventListener('click', _toggleGuide);
+});
+
 const data = [
   {title:"EMBROIDERED CLOTH",tags:["fabric","pastel","3D"],prompt:"inflated letters made of cloth with pieces of embroidered patches, pink, purple and blue pastel color, 3d, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:88e7d425-9241-45b7-a3fb-76e96f0f0700"},
   {title:"SOFT LEATHER",tags:["puffy","white","wrinkles"],prompt:"Inflate, puffy shapes made of white soft leather, folds and wrinkles on material, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:1e5cc06c-dda7-4211-b449-286551cdb54a"},
@@ -134,6 +261,7 @@ const data = [
   {title:"STONE",tags:["cracked","moss","rough"],prompt:"made of stone, cracked, moss, 3d, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:820c08f3-c51b-471c-af1c-f8cf302a806f"},
   {title:"CERAMIC",tags:["uneven","beige","solid"],prompt:"A ceramic with an uneven surface, mottled in white and beige colors, with a solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:f643e6e2-b691-4b78-bdb8-6eb6465fcf5d"},
   {title:"SLIME",tags:["wet","organic","red"],prompt:"A slimy and wet, red and pink ball, floating pose, solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:e54fff83-c1ce-4a49-8a7c-a04d189c2049"},
+  {title:"FUR",tags:["soft","white","furry"],prompt:"A white soft furry , solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:eba76f6f-b838-4659-996d-4966a6e5292e"},
   {title:"FUR",tags:["soft","white","furry"],prompt:"A white soft furry , solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:eba76f6f-b838-4659-996d-4966a6e5292e"},
   {title:"GOLD CHROME",tags:["gold","metal","polished"],prompt:"liquid, shiny chrome gold material, polished, 3d, isolated on black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:a14dab19-9a55-4c3c-b6c0-9c60965e9805"},
   {title:"ICE",tags:["transparent","frost","cold"],prompt:"3D render thick transparent ice material, glossy frosty surface with internal cracks, subtle blue tint, cold lighting with soft reflections, high contrast on pure black background, slight condensation and water droplets, realistic, clean, cold look, 3d, isolated on black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:620fbe8c-e005-4ad2-b2b7-5d3e06502ec1"},
