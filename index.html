@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Firefly Prompt Library</title>
+<style>
+  body {
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background:#0a0a0a;
+    color:#fff;
+  }
+
+  header {
+    padding:20px;
+    border-bottom:1px solid #222;
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+
+  input {
+    flex:1;
+    padding:12px;
+    border-radius:8px;
+    border:none;
+    background:#111;
+    color:#fff;
+  }
+
+  .container {
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+    gap:16px;
+    padding:20px;
+  }
+
+  .card {
+    background:#111;
+    border-radius:16px;
+    padding:16px;
+    cursor:pointer;
+    transition:0.25s;
+    position:relative;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    background:#1a1a1a;
+  }
+
+  .thumb {
+    width:100%;
+    height:120px;
+    background:#222;
+    border-radius:10px;
+    margin-bottom:10px;
+  }
+
+  .title {
+    font-weight:600;
+    margin-bottom:6px;
+  }
+
+  .category {
+    font-size:12px;
+    opacity:0.6;
+  }
+
+  .preview {
+    position:absolute;
+    bottom:100%;
+    left:0;
+    background:#000;
+    padding:10px;
+    font-size:11px;
+    width:100%;
+    display:none;
+    border-radius:8px;
+  }
+
+  .card:hover .preview {
+    display:block;
+  }
+
+  .toast {
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#fff;
+    color:#000;
+    padding:10px 16px;
+    border-radius:999px;
+    opacity:0;
+    transition:0.3s;
+  }
+
+  .toast.show { opacity:1; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <input id="search" placeholder="Search material..." />
+</header>
+
+<div class="container" id="grid"></div>
+<div class="toast" id="toast">Copied + Opening</div>
+
+<script>
+const firefly = "https://firefly.adobe.com/";
+
+const prompts = [
+  {name:'Cloth Patch',cat:'Soft',p:`inflated letters made of cloth with pieces of embroidered patches, pink, purple and blue pastel color, 3d, isolated on black`},
+  {name:'Leather Puffy',cat:'Soft',p:`Inflate, puffy shapes made of white soft leather, folds and wrinkles on material, isolated on black`},
+  {name:'Iridescent Liquid',cat:'Liquid',p:`liquid iridescent material, glossy, polished, isolated on black`},
+  {name:'Chrome',cat:'Metal',p:`reflective, shiny chrome material, polished, 3d, isolated on black background`},
+  {name:'Water',cat:'Liquid',p:`made of liquid water, aqua, sparkling, isolated on black`},
+  {name:'Glass',cat:'Solid',p:`made of liquid glass material, white, isolated on black`},
+  {name:'Paper',cat:'Solid',p:`made of wrinkled paper silhouette, isolated on black`},
+  {name:'Paint Stroke',cat:'FX',p:`painted strokes, white, isolated on black`},
+  {name:'Stone',cat:'Solid',p:`made of stone, cracked, moss, 3d, isolated on black`},
+  {name:'Ceramic',cat:'Solid',p:`A ceramic with an uneven surface, mottled in white and beige colors, with a solid black background`},
+  {name:'Slime',cat:'Liquid',p:`A slimy and wet, red and pink ball, floating pose, solid black background`},
+  {name:'Fur',cat:'Soft',p:`A white soft furry, solid black background`},
+  {name:'Gold Chrome',cat:'Metal',p:`liquid, shiny chrome gold material, polished, 3d, isolated on black background`},
+  {name:'Ice',cat:'Solid',p:`3D render thick transparent ice material, glossy frosty surface with internal cracks, subtle blue tint, isolated on black`},
+  {name:'Cloud',cat:'Soft',p:`3d letters of fluffy white clouds, soft volumetric cloud texture, isolated on black`},
+  {name:'Bubble',cat:'Liquid',p:`iridescent bubble 3d letters, isolated on black`}
+];
+
+const grid = document.getElementById('grid');
+const toast = document.getElementById('toast');
+
+function showToast(){
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),1200);
+}
+
+function createCard(item){
+  const div = document.createElement('div');
+  div.className = 'card';
+
+  div.innerHTML = `
+    <div class="preview">${item.p}</div>
+    <div class="thumb"></div>
+    <div class="title">${item.name}</div>
+    <div class="category">${item.cat}</div>
+  `;
+
+  div.onclick = ()=>{
+    navigator.clipboard.writeText(item.p);
+    localStorage.setItem('lastPrompt', item.p);
+    showToast();
+    setTimeout(()=>window.open(firefly,'_blank'),400);
+  };
+
+  div.oncontextmenu = (e)=>{
+    e.preventDefault();
+    navigator.clipboard.writeText(item.p);
+    showToast();
+  };
+
+  return div;
+}
+
+function render(list){
+  grid.innerHTML='';
+  list.forEach(p=>grid.appendChild(createCard(p)));
+}
+
+render(prompts);
+
+// search
+const input = document.getElementById('search');
+input.oninput = ()=>{
+  const k = input.value.toLowerCase();
+  const filtered = prompts.filter(p=>
+    p.name.toLowerCase().includes(k) ||
+    p.cat.toLowerCase().includes(k)
+  );
+  render(filtered);
+};
+
+</script>
+
+</body>
+</html>
