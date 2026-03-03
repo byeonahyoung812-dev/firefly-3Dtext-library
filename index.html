@@ -5,94 +5,167 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Firefly Prompt Library</title>
 <style>
-  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#0a0a0a; color:#fff; }
-  header { padding:20px; border-bottom:1px solid #222; display:flex; gap:12px; align-items:center; }
-  input { flex:1; padding:12px; border-radius:8px; border:none; background:#111; color:#fff; }
-  .container { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; padding:20px; }
-  .card { background:#111; border-radius:16px; padding:16px; cursor:pointer; transition:0.25s; position:relative; }
-  .card:hover { transform:translateY(-4px); background:#1a1a1a; }
-  .thumb { width:100%; height:120px; background:#222; border-radius:10px; margin-bottom:10px; }
-  .title { font-weight:600; margin-bottom:6px; }
-  .category { font-size:12px; opacity:0.6; }
-  .preview { position:absolute; bottom:100%; left:0; background:#000; padding:10px; font-size:11px; width:100%; display:none; border-radius:8px; }
-  .card:hover .preview { display:block; }
-  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#fff; color:#000; padding:10px 16px; border-radius:999px; opacity:0; transition:0.3s; }
-  .toast.show { opacity:1; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0b0b0b;
+    color: white;
+  }
+
+  .notice {
+    padding: 28px 40px;
+    font-size: 18px;
+    font-weight: 600;
+    background: linear-gradient(90deg,#111,#1a1a1a);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .notice strong {
+    font-weight: 800;
+    font-size: 20px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    padding: 40px;
+  }
+
+  .card {
+    background: linear-gradient(145deg, #111, #1a1a1a);
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.3s;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .card:hover {
+    transform: translateY(-6px) scale(1.02);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  .title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    opacity: 0.8;
+  }
+
+  .prompt {
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: 0;
+    max-height: 0;
+    transition: all 0.3s ease;
+  }
+
+  .card:hover .prompt {
+    opacity: 1;
+    max-height: 200px;
+    margin-top: 10px;
+  }
+
+  .btn {
+    margin-top: 14px;
+    padding: 10px;
+    border-radius: 10px;
+    background: white;
+    color: black;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .chrome { background: linear-gradient(90deg,#aaa,#fff,#888); -webkit-background-clip:text; color:transparent; }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    padding: 10px 16px;
+    border-radius: 999px;
+    opacity: 0;
+    transition: 0.3s;
+  }
+
+  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
-<header>
-  <input id="search" placeholder="Search material..." />
-</header>
-<div class="container" id="grid"></div>
-<div class="toast" id="toast">Copied + Opening</div>
+
+<div class="notice">
+⚠️ Firefly 사용 전 <strong>참조이미지</strong>는 반드시 1500×1500px 정사각형으로 제작 후 교체하세요.
+</div>
+
+<div class="grid" id="grid"></div>
+<div class="toast" id="toast">Copied</div>
+
 <script>
-const prompts = [
-  {name:'Cloth Patch',cat:'Soft',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:88e7d425-9241-45b7-a3fb-76e96f0f0700',p:`inflated letters made of cloth with pieces of embroidered patches, pink, purple and blue pastel color, 3d, isolated on black`},
-  {name:'Leather Puffy',cat:'Soft',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:1e5cc06c-dda7-4211-b449-286551cdb54a',p:`Inflate, puffy shapes made of white soft leather, folds and wrinkles on material, isolated on black`},
-  {name:'Iridescent Liquid',cat:'Liquid',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:ad1e9839-3cdd-40af-8462-bbc15a35cc84',p:`liquid iridescent material, glossy, polished, isolated on black`},
-  {name:'Chrome',cat:'Metal',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:7f4cc1f9-698e-4d53-b7b5-8a755537962a',p:`reflective, shiny chrome material, polished, 3d, isolated on black background`},
-  {name:'Water',cat:'Liquid',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:9c0ca5b8-c983-4c2c-91a1-95850ad13486',p:`made of liquid water, aqua, sparkling, isolated on black`},
-  {name:'Glass',cat:'Solid',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:18f99e39-6977-4193-ab39-adb91a3923af',p:`made of liquid glass material, white, isolated on black`},
-  {name:'Paper',cat:'Solid',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:58147722-f2c1-45f1-a591-1002c164f853',p:`made of wrinkled paper silhouette, isolated on black`},
-  {name:'Paint Stroke',cat:'FX',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:675ba03e-b804-4f35-851e-5975211f2f62',p:`painted strokes, white, isolated on black`},
-  {name:'Stone',cat:'Solid',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:820c08f3-c51b-471c-af1c-f8cf302a806f',p:`made of stone, cracked, moss, 3d, isolated on black`},
-  {name:'Ceramic',cat:'Solid',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:f643e6e2-b691-4b78-bdb8-6eb6465fcf5d',p:`A ceramic with an uneven surface, mottled in white and beige colors, with a solid black background`},
-  {name:'Slime',cat:'Liquid',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:e54fff83-c1ce-4a49-8a7c-a04d189c2049',p:`A slimy and wet, red and pink ball, floating pose, solid black background`},
-  {name:'Fur',cat:'Soft',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:eba76f6f-b838-4659-996d-4966a6e5292e',p:`A white soft furry , solid black background`},
-  {name:'Gold Chrome',cat:'Metal',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:a14dab19-9a55-4c3c-b6c0-9c60965e9805',p:`liquid, shiny chrome gold material, polished, 3d, isolated on black background`},
-  {name:'Ice',cat:'Solid',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:620fbe8c-e005-4ad2-b2b7-5d3e06502ec1',p:`3D render thick transparent ice material, glossy frosty surface with internal cracks, subtle blue tint, cold lighting with soft reflections, high contrast on pure black background, slight condensation and water droplets, realistic, clean, cold look, 3d, isolated on black background`},
-  {name:'Cloud',cat:'Soft',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:dc948ecb-c72d-4df0-b7d4-f8a14efe2f9e',p:`3d letters of fluffy white clouds, soft volumetric cloud texture, airy and puffy edges, extra softness, diffused edges, natural sunlight, soft shadows, 3D render, realistic, with a solid black background`},
-  {name:'Bubble',cat:'Liquid',link:'https://firefly.adobe.com/open/urn:aaid:sc:AP:d0ae1f7a-7e1f-485f-882b-edce8125e849',p:`iridescent bubble 3d letters, isolated on black`}
+const data = [
+  {title:"EMBROIDERED CLOTH",tags:["fabric","pastel","3D"],prompt:"inflated letters made of cloth with pieces of embroidered patches, pink, purple and blue pastel color, 3d, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:88e7d425-9241-45b7-a3fb-76e96f0f0700"},
+  {title:"SOFT LEATHER",tags:["puffy","white","wrinkles"],prompt:"Inflate, puffy shapes made of white soft leather, folds and wrinkles on material, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:1e5cc06c-dda7-4211-b449-286551cdb54a"},
+  {title:"IRIDESCENT LIQUID",tags:["glossy","polished","liquid"],prompt:"liquid iridescent material, glossy, polished, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:ad1e9839-3cdd-40af-8462-bbc15a35cc84"},
+  {title:"CHROME",tags:["metal","reflective","shiny"],prompt:"reflective, shiny chrome material, polished, 3d, isolated on black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:7f4cc1f9-698e-4d53-b7b5-8a755537962a"},
+  {title:"WATER",tags:["aqua","sparkling","fluid"],prompt:"made of liquid water, aqua, sparkling, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:9c0ca5b8-c983-4c2c-91a1-95850ad13486"},
+  {title:"LIQUID GLASS",tags:["transparent","white","clean"],prompt:"made of liquid glass material, white, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:18f99e39-6977-4193-ab39-adb91a3923af"},
+  {title:"WRINKLED PAPER",tags:["texture","matte","crease"],prompt:"made of wrinkled paper silhouette, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:58147722-f2c1-45f1-a591-1002c164f853"},
+  {title:"PAINT STROKE",tags:["brush","white","stroke"],prompt:"painted strokes, white, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:675ba03e-b804-4f35-851e-5975211f2f62"},
+  {title:"STONE",tags:["cracked","moss","rough"],prompt:"made of stone, cracked, moss, 3d, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:820c08f3-c51b-471c-af1c-f8cf302a806f"},
+  {title:"CERAMIC",tags:["uneven","beige","solid"],prompt:"A ceramic with an uneven surface, mottled in white and beige colors, with a solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:f643e6e2-b691-4b78-bdb8-6eb6465fcf5d"},
+  {title:"SLIME",tags:["wet","organic","red"],prompt:"A slimy and wet, red and pink ball, floating pose, solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:e54fff83-c1ce-4a49-8a7c-a04d189c2049"},
+  {title:"FUR",tags:["soft","white","furry"],prompt:"A white soft furry , solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:eba76f6f-b838-4659-996d-4966a6e5292e"},
+  {title:"GOLD CHROME",tags:["gold","metal","polished"],prompt:"liquid, shiny chrome gold material, polished, 3d, isolated on black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:a14dab19-9a55-4c3c-b6c0-9c60965e9805"},
+  {title:"ICE",tags:["transparent","frost","cold"],prompt:"3D render thick transparent ice material, glossy frosty surface with internal cracks, subtle blue tint, cold lighting with soft reflections, high contrast on pure black background, slight condensation and water droplets, realistic, clean, cold look, 3d, isolated on black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:620fbe8c-e005-4ad2-b2b7-5d3e06502ec1"},
+  {title:"CLOUD",tags:["soft","volumetric","white"],prompt:"3d letters of fluffy white clouds, soft volumetric cloud texture, airy and puffy edges, extra softness, diffused edges, natural sunlight, soft shadows, 3D render, realistic, with a solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:dc948ecb-c72d-4df0-b7d4-f8a14efe2f9e"},
+  {title:"BUBBLE",tags:["iridescent","glossy","translucent"],prompt:"iridescent bubble 3d letters, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:d0ae1f7a-7e1f-485f-882b-edce8125e849"}
 ];
 
-const grid = document.getElementById('grid');
-const toast = document.getElementById('toast');
+const grid = document.getElementById("grid");
+const toast = document.getElementById("toast");
 
 function showToast(){
-  toast.classList.add('show');
-  setTimeout(()=>toast.classList.remove('show'),1200);
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),1000);
 }
 
-function createCard(item){
-  const div = document.createElement('div');
-  div.className = 'card';
-  div.innerHTML = `
-    <div class="preview">${item.p}</div>
-    <div class="thumb"></div>
-    <div class="title">${item.name}</div>
-    <div class="category">${item.cat}</div>
+data.forEach(item=>{
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="title">${item.title}</div>
+    <div class="tags">${item.tags.map(t=>`<div class="tag">${t}</div>`).join("")}</div>
+    <div class="prompt">${item.prompt}</div>
+    <div class="btn">Generate</div>
   `;
-  div.onclick = ()=>{
-    navigator.clipboard.writeText(item.p);
-    localStorage.setItem('lastPrompt', item.p);
+  card.onclick = ()=>{
+    navigator.clipboard.writeText(item.prompt);
     showToast();
-    setTimeout(()=>window.open(item.link,'_blank'),400);
-  };
-  div.oncontextmenu = (e)=>{
-    e.preventDefault();
-    navigator.clipboard.writeText(item.p);
-    showToast();
-  };
-  return div;
-}
-
-function render(list){
-  grid.innerHTML='';
-  list.forEach(p=>grid.appendChild(createCard(p)));
-}
-
-render(prompts);
-
-const input = document.getElementById('search');
-input.oninput = ()=>{
-  const k = input.value.toLowerCase();
-  const filtered = prompts.filter(p=>
-    p.name.toLowerCase().includes(k) ||
-    p.cat.toLowerCase().includes(k)
-  );
-  render(filtered);
-};
+    setTimeout(()=>window.open(item.link, "_blank"),400);
+  }
+  grid.appendChild(card);
+});
 </script>
+
 </body>
 </html>
