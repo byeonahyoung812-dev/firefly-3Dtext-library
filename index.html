@@ -113,7 +113,23 @@
     border:1px solid rgba(255,255,255,0.08);
   }
 
-  /* Cards */
+  /* Search */
+  .searchWrap{
+    padding: 18px 40px 0 40px;
+  }
+  .search{
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: #111;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+  }
+  .search::placeholder{ color: rgba(255,255,255,0.45); }
+
+/* Cards */
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -232,6 +248,10 @@
   </div>
 </header>
 
+<div class="searchWrap">
+  <input type="text" id="search" class="search" placeholder="Search title / tag / prompt…" />
+</div>
+
 <div class="grid" id="grid"></div>
 <div class="toast" id="toast">Copied</div>
 
@@ -270,28 +290,48 @@ const data = [
 
 const grid = document.getElementById("grid");
 const toast = document.getElementById("toast");
+const searchInput = document.getElementById("search");
 
 function showToast(){
   toast.classList.add("show");
   setTimeout(()=>toast.classList.remove("show"),1000);
 }
 
-data.forEach(item=>{
-  const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML = `
-    <div class="title">${item.title}</div>
-    <div class="tags">${item.tags.map(t=>`<div class="tag">${t}</div>`).join("")}</div>
-    <div class="prompt">${item.prompt}</div>
-    <div class="btn">Generate</div>
-  `;
-  card.onclick = ()=>{
-    navigator.clipboard.writeText(item.prompt);
-    showToast();
-    setTimeout(()=>window.open(item.link, "_blank"),400);
-  }
-  grid.appendChild(card);
-});
+function renderCards(list){
+  grid.innerHTML = "";
+  list.forEach(item=>{
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="title">${item.title}</div>
+      <div class="tags">${item.tags.map(t=>`<div class="tag">${t}</div>`).join("")}</div>
+      <div class="prompt">${item.prompt}</div>
+      <div class="btn">Generate</div>
+    `;
+
+    card.onclick = ()=>{
+      navigator.clipboard.writeText(item.prompt);
+      showToast();
+      setTimeout(()=>window.open(item.link, "_blank"),400);
+    };
+
+    grid.appendChild(card);
+  });
+}
+
+function filterCards(){
+  const keyword = (searchInput?.value || "").toLowerCase();
+  const filtered = data.filter(item =>
+    item.title.toLowerCase().includes(keyword) ||
+    item.prompt.toLowerCase().includes(keyword) ||
+    item.tags.join(" ").toLowerCase().includes(keyword)
+  );
+  renderCards(filtered);
+}
+
+if (searchInput) searchInput.addEventListener("input", filterCards);
+
+renderCards(data);
 </script>
 
 </body>
