@@ -12,7 +12,7 @@
     color: white;
   }
 
-  /* Top guide */
+  /* Top guide (pro) */
   .topbar{
     position:sticky;
     top:0;
@@ -31,16 +31,34 @@
   .brand__title{
     font-size:16px;
     font-weight:900;
+    letter-spacing:0.2px;
   }
   .brand__subtitle{
     margin-top:4px;
     font-size:12px;
     opacity:0.72;
   }
+  .guideToggle{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.10);
+    background:rgba(255,255,255,0.06);
+    color:#fff;
+    font-size:13px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .guideToggle:hover{ background:rgba(255,255,255,0.10); }
+  .chev{ display:inline-block; transition:transform 180ms ease; opacity:0.9; }
+  .guideToggle[aria-expanded="false"] .chev{ transform:rotate(-90deg); }
 
   .guide{
     padding:0 40px 18px 40px;
   }
+  .guide.isHidden{ display:none; }
   .guide__callout{
     padding:14px 16px;
     border-radius:14px;
@@ -49,20 +67,50 @@
     font-size:14px;
     line-height:1.4;
   }
-  .guide__callout strong{ font-weight:900; }
+  .guide__callout strong{ font-weight:900; font-size:15px; }
 
-  /* Search */
-  .searchWrap{
-    padding:20px 40px 0 40px;
+  .steps{
+    margin:14px 0 10px 0;
+    padding:0;
+    list-style:none;
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap:10px;
   }
-  .search{
-    width:100%;
-    padding:12px 14px;
+  .steps li{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    padding:12px 12px;
     border-radius:14px;
-    border:1px solid rgba(255,255,255,0.1);
-    background:#111;
-    color:white;
-    font-size:14px;
+    background:rgba(0,0,0,0.35);
+    border:1px solid rgba(255,255,255,0.06);
+  }
+  .stepNum{
+    width:22px;
+    height:22px;
+    border-radius:999px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    font-weight:900;
+    background:rgba(255,255,255,0.14);
+  }
+  .stepText{ font-size:13px; line-height:1.35; opacity:0.92; }
+
+  .guide__tips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .tip{
+    font-size:12px;
+    opacity:0.75;
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
   }
 
   /* Cards */
@@ -77,6 +125,8 @@
     background: linear-gradient(145deg, #111, #1a1a1a);
     border-radius: 20px;
     padding: 20px;
+    position: relative;
+    overflow: hidden;
     cursor: pointer;
     transition: 0.3s;
     border: 1px solid rgba(255,255,255,0.05);
@@ -91,6 +141,7 @@
     font-size: 20px;
     font-weight: 900;
     margin-bottom: 10px;
+    letter-spacing: 0.5px;
   }
 
   .tags {
@@ -150,28 +201,54 @@
 </head>
 <body>
 
-<header class="topbar">
+<header class="topbar" role="banner">
   <div class="topbar__inner">
-    <div>
+    <div class="brand">
       <div class="brand__title">Firefly Prompt Library</div>
-      <div class="brand__subtitle">Copy → Replace Reference → Generate</div>
+      <div class="brand__subtitle">One-click: copy prompt → open preset → replace reference → generate</div>
     </div>
+    <button class="guideToggle" id="guideToggle" aria-expanded="true" aria-controls="guidePanel">
+      사용 가이드
+      <span class="chev" aria-hidden="true">▾</span>
+    </button>
   </div>
-  <div class="guide">
+
+  <div class="guide" id="guidePanel">
     <div class="guide__callout">
-      ⚠️ Firefly 진입 후 좌측 <strong>컴포지션 → 참조 이미지</strong>를 <strong>1500×1500px 정사각형 한글 PNG</strong>로 반드시 교체하세요.
+      ⚠️ 필수: Firefly 진입 후 좌측 <strong>컴포지션 → 참조 이미지</strong>를 <strong>1500×1500px 정사각형 한글 PNG</strong>로 반드시 교체하세요.
+    </div>
+
+    <ol class="steps">
+      <li><span class="stepNum">1</span><span class="stepText">카드 클릭 (프롬프트 자동 복사)</span></li>
+      <li><span class="stepNum">2</span><span class="stepText">Firefly 프리셋 링크 자동 열림</span></li>
+      <li><span class="stepNum">3</span><span class="stepText">좌측 <strong>컴포지션 → 참조</strong>에서 기존 이미지를 제거</span></li>
+      <li><span class="stepNum">4</span><span class="stepText"><strong>1500×1500px 한글 PNG</strong> 업로드 후 Generate</span></li>
+    </ol>
+
+    <div class="guide__tips">
+      <div class="tip">Tip: 우클릭(또는 길게 누르기) = 링크 이동 없이 “복사만”</div>
+      <div class="tip">Tip: 결과가 이상하면 참조 이미지 교체가 안 된 경우가 대부분</div>
     </div>
   </div>
 </header>
-
-<div class="searchWrap">
-  <input type="text" id="search" class="search" placeholder="Search material..." />
-</div>
 
 <div class="grid" id="grid"></div>
 <div class="toast" id="toast">Copied</div>
 
 <script>
+// Guide toggle
+const _toggleGuide = () => {
+  const btn = document.getElementById('guideToggle');
+  const panel = document.getElementById('guidePanel');
+  const expanded = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', String(!expanded));
+  panel.classList.toggle('isHidden', expanded);
+};
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('guideToggle');
+  if (btn) btn.addEventListener('click', _toggleGuide);
+});
+
 const data = [
   {title:"EMBROIDERED CLOTH",tags:["fabric","pastel","3D"],prompt:"inflated letters made of cloth with pieces of embroidered patches, pink, purple and blue pastel color, 3d, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:88e7d425-9241-45b7-a3fb-76e96f0f0700"},
   {title:"SOFT LEATHER",tags:["puffy","white","wrinkles"],prompt:"Inflate, puffy shapes made of white soft leather, folds and wrinkles on material, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:1e5cc06c-dda7-4211-b449-286551cdb54a"},
@@ -193,48 +270,28 @@ const data = [
 
 const grid = document.getElementById("grid");
 const toast = document.getElementById("toast");
-const searchInput = document.getElementById("search");
 
 function showToast(){
   toast.classList.add("show");
   setTimeout(()=>toast.classList.remove("show"),1000);
 }
 
-function renderCards(list){
-  grid.innerHTML = "";
-  list.forEach(item=>{
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div class="title">${item.title}</div>
-      <div class="tags">${item.tags.map(t=>`<div class="tag">${t}</div>`).join("")}</div>
-      <div class="prompt">${item.prompt}</div>
-      <div class="btn">Generate</div>
-    `;
-
-    card.onclick = ()=>{
-      navigator.clipboard.writeText(item.prompt);
-      showToast();
-      setTimeout(()=>window.open(item.link, "_blank"),400);
-    };
-
-    grid.appendChild(card);
-  });
-}
-
-function filterCards(){
-  const keyword = searchInput.value.toLowerCase();
-  const filtered = data.filter(item=>
-    item.title.toLowerCase().includes(keyword) ||
-    item.prompt.toLowerCase().includes(keyword) ||
-    item.tags.join(" ").toLowerCase().includes(keyword)
-  );
-  renderCards(filtered);
-}
-
-searchInput.addEventListener("input", filterCards);
-
-renderCards(data);
+data.forEach(item=>{
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="title">${item.title}</div>
+    <div class="tags">${item.tags.map(t=>`<div class="tag">${t}</div>`).join("")}</div>
+    <div class="prompt">${item.prompt}</div>
+    <div class="btn">Generate</div>
+  `;
+  card.onclick = ()=>{
+    navigator.clipboard.writeText(item.prompt);
+    showToast();
+    setTimeout(()=>window.open(item.link, "_blank"),400);
+  }
+  grid.appendChild(card);
+});
 </script>
 
 </body>
