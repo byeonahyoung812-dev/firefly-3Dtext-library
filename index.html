@@ -8,8 +8,8 @@
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #0b0b0b;
-    color: white;
+    background:#F7F8FA;
+    color:#111;
   }
 
   /* Top guide (pro) */
@@ -17,9 +17,10 @@
     position:sticky;
     top:0;
     z-index:50;
-    background:linear-gradient(180deg, rgba(10,10,10,0.92), rgba(10,10,10,0.72));
-    backdrop-filter: blur(12px);
-    border-bottom:1px solid rgba(255,255,255,0.08);
+    background:#fff;
+    
+    border-bottom:1px solid #ECECEC;
+    box-shadow:0 6px 24px rgba(0,0,0,.05);
   }
   .topbar__inner{
     display:flex;
@@ -122,8 +123,8 @@
     padding: 12px 14px;
     border-radius: 14px;
     border: 1px solid rgba(255,255,255,0.10);
-    background: #111;
-    color: #fff;
+    background:#fff;
+    color:#111;
     font-size: 14px;
     outline: none;
   }
@@ -138,7 +139,7 @@
   }
 
   .card {
-    background: linear-gradient(145deg, #111, #1a1a1a);
+    background:#fff;
     border-radius: 20px;
     padding: 20px;
     position: relative;
@@ -193,8 +194,8 @@
     margin-top: 14px;
     padding: 10px;
     border-radius: 10px;
-    background: white;
-    color: black;
+    background:#2563EB;
+    color:#fff;
     text-align: center;
     font-size: 13px;
     font-weight: 800;
@@ -249,7 +250,7 @@
 </header>
 
 <div class="searchWrap">
-  <input type="text" id="search" class="search" placeholder="Search title / tag / prompt…" />
+  <input type="text" id="search" class="search" placeholder="재질명을 검색하세요 (예: 털, 크롬, 유리)" />
 </div>
 
 <div class="grid" id="grid"></div>
