@@ -45,14 +45,14 @@
     gap:10px;
     padding:10px 12px;
     border-radius:12px;
-    border:1px solid rgba(255,255,255,0.10);
-    background:rgba(255,255,255,0.06);
-    color:#fff;
+    border:1px solid #D9E5FF;
+    background:#EEF4FF;
+    color:#2563EB;
     font-size:13px;
     font-weight:800;
     cursor:pointer;
   }
-  .guideToggle:hover{ background:rgba(255,255,255,0.10); }
+  .guideToggle:hover{ background:#E4EEFF; }
   .chev{ display:inline-block; transition:transform 180ms ease; opacity:0.9; }
   .guideToggle[aria-expanded="false"] .chev{ transform:rotate(-90deg); }
 
@@ -63,8 +63,8 @@
   .guide__callout{
     padding:14px 16px;
     border-radius:14px;
-    background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.10);
+    background:#F3F7FF;
+    border:1px solid #DCE8FF;
     font-size:14px;
     line-height:1.4;
   }
@@ -84,8 +84,8 @@
     align-items:flex-start;
     padding:12px 12px;
     border-radius:14px;
-    background:rgba(0,0,0,0.35);
-    border:1px solid rgba(255,255,255,0.06);
+    background:#F8FAFF;
+    border:1px solid #E2E9F7;
   }
   .stepNum{
     width:22px;
@@ -96,9 +96,10 @@
     justify-content:center;
     font-size:12px;
     font-weight:900;
-    background:rgba(255,255,255,0.14);
+    background:#E7EFFF;
+    color:#2563EB;
   }
-  .stepText{ font-size:13px; line-height:1.35; opacity:0.92; }
+  .stepText{ font-size:13px; line-height:1.35; color:#333; }
 
   .guide__tips{
     display:flex;
@@ -107,11 +108,11 @@
   }
   .tip{
     font-size:12px;
-    opacity:0.75;
+    color:#666;
     padding:10px 12px;
     border-radius:12px;
-    background:rgba(255,255,255,0.04);
-    border:1px solid rgba(255,255,255,0.08);
+    background:#F6F7FA;
+    border:1px solid #E7E9EE;
   }
 
   /* Search */
@@ -128,7 +129,7 @@
     font-size: 14px;
     outline: none;
   }
-  .search::placeholder{ color: rgba(255,255,255,0.45); }
+  .search::placeholder{ color:#9AA0AA; }
 
 /* Cards */
   .grid {
@@ -146,12 +147,14 @@
     overflow: hidden;
     cursor: pointer;
     transition: 0.3s;
-    border: 1px solid rgba(255,255,255,0.05);
+    border:1px solid #E8EAF0;
+    box-shadow:0 4px 18px rgba(25,40,70,.04);
   }
 
   .card:hover {
     transform: translateY(-6px) scale(1.02);
-    border: 1px solid rgba(255,255,255,0.15);
+    border:1px solid #C9D9F5;
+    box-shadow:0 10px 28px rgba(37,99,235,.10);
   }
 
   .title {
@@ -172,8 +175,9 @@
     font-size: 11px;
     padding: 4px 8px;
     border-radius: 999px;
-    background: rgba(255,255,255,0.08);
-    opacity: 0.85;
+    background:#F0F3F8;
+    color:#5B6472;
+    opacity:1;
   }
 
   .prompt {
@@ -206,10 +210,15 @@
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    background: #222;
-    padding: 10px 16px;
-    border-radius: 999px;
-    opacity: 0;
+    background:#fff;
+    color:#111;
+    padding:10px 16px;
+    border-radius:999px;
+    border:1px solid #E2E5EA;
+    box-shadow:0 8px 28px rgba(0,0,0,.12);
+    font-size:13px;
+    font-weight:700;
+    opacity:0;
     transition: 0.3s;
   }
 
@@ -281,7 +290,7 @@ const data = [
   {title:"페인트 브러시",tags:["brush","white","stroke"],prompt:"painted strokes, white, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:675ba03e-b804-4f35-851e-5975211f2f62"},
   {title:"석재",tags:["cracked","moss","rough"],prompt:"made of stone, cracked, moss, 3d, isolated on black",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:820c08f3-c51b-471c-af1c-f8cf302a806f"},
   {title:"세라믹",tags:["uneven","beige","solid"],prompt:"A ceramic with an uneven surface, mottled in white and beige colors, with a solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:f643e6e2-b691-4b78-bdb8-6eb6465fcf5d"},
-  {title:"슬라임",tags:["wet","organic","red"],prompt:"A slimy and wet, red and pink, floating pose, solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:a7906214-7b1e-4529-8574-40ad7a0902e3"},
+  {title:"슬라임",tags:["wet","organic","red"],prompt:"A slimy and wet, red and pink ball, floating pose, solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:eba76f6f-b838-4659-996d-4966a6e5292e"},
   {title:"털",tags:["soft","white","furry"],prompt:"A white soft furry , solid black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:e54fff83-c1ce-4a49-8a7c-a04d189c2049"},
   {title:"골드 크롬",tags:["gold","metal","polished"],prompt:"liquid, shiny chrome gold material, polished, 3d, isolated on black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:a14dab19-9a55-4c3c-b6c0-9c60965e9805"},
   {title:"얼음",tags:["transparent","frost","cold"],prompt:"3D render thick transparent ice material, glossy frosty surface with internal cracks, subtle blue tint, cold lighting with soft reflections, high contrast on pure black background, slight condensation and water droplets, realistic, clean, cold look, 3d, isolated on black background",link:"https://firefly.adobe.com/open/urn:aaid:sc:AP:620fbe8c-e005-4ad2-b2b7-5d3e06502ec1"},
